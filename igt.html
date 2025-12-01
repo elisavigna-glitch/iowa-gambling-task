@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Iowa Gambling Task Prototype</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 20px;
+    }
+    .deck {
+      display: inline-block;
+      margin: 15px;
+      padding: 20px;
+      border: 2px solid black;
+      width: 80px;
+      height: 120px;
+      font-size: 24px;
+      cursor: pointer;
+      background-color: lightgray;
+    }
+    #feedback {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+    #score {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Iowa Gambling Task</h1>
+  <div id="trialCounter">Trial: 1 / 100</div>
+  <div>
+    <div class="deck" onclick="chooseDeck('A')">Deck A</div>
+    <div class="deck" onclick="chooseDeck('B')">Deck B</div>
+    <div class="deck" onclick="chooseDeck('C')">Deck C</div>
+    <div class="deck" onclick="chooseDeck('D')">Deck D</div>
+  </div>
+
+  <div id="feedback"></div>
+  <div id="score">Total Score: $0</div>
+
+  <script>
+    let trial = 1;
+    let totalScore = 0;
+    const maxTrials = 100;
+    const data = [];
+
+    const deckRules = {
+      A: {gain: 100, loss: () => [-150, -200, 0, 0, -250][Math.floor(Math.random()*5)]},
+      B: {gain: 100, loss: () => [0, -1250, 0, 0, 0][Math.floor(Math.random()*5)]},
+      C: {gain: 50,  loss: () => [-25, 0, -50, 0, 0][Math.floor(Math.random()*5)]},
+      D: {gain: 50,  loss: () => [0, -250, 0, 0, 0][Math.floor(Math.random()*5)]},
+    };
+
+    function chooseDeck(deck) {
+      if (trial > maxTrials) {
+        alert("Task complete! Check console for data.");
+        console.log(data);
+        return;
+      }
+
+      const gain = deckRules[deck].gain;
+      const loss = deckRules[deck].loss();
+      const net = gain + loss;
+      totalScore += net;
+
+      document.getElementById("feedback").innerHTML =
+        `You chose <strong>Deck ${deck}</strong><br>Gain: $${gain} | Loss: $${loss} | Net: $${net}`;
+      document.getElementById("score").innerText = `Total Score: $${totalScore}`;
+      document.getElementById("trialCounter").innerText = `Trial: ${trial+1} / ${maxTrials}`;
+
+      data.push({
+        trial: trial,
+        deck: deck,
+        gain: gain,
+        loss: loss,
+        net: net,
+        totalScore: totalScore,
+        timestamp: new Date().toISOString()
+      });
+
+      trial++;
+    }
+  </script>
+
+</body>
+</html>
